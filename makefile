@@ -14,7 +14,7 @@ VERSION := 0.1
 
 OUTPUT := $(NAME)
 
-CC := clang
+CC := gcc
 MEMTEST := valgrind
 DEBUG := gdb
 
@@ -28,7 +28,7 @@ PKG_CONF_LIBS := libsodium libtoxcore glib-2.0
 CFLAGS := -g
 CFLAGS += $(shell pkg-config --cflags $(PKG_CONF_LIBS))
 CFLAGS += -I./inc -I./inc/gen
-CFLAGS += -std=gnu11
+CFLAGS += -std=gnu11 -D_GNU_SOURCE
 
 LDFLAGS := $(shell pkg-config --libs $(PKG_CONF_LIBS))
 

@@ -13,8 +13,8 @@
 
 #include "tp_game.h"
 #include "tp_questions.h"
-#include "gen/main.h"
- 
+#include "main.h"
+
 typedef struct DHT_node
 {
 	const char *ip;
@@ -28,10 +28,19 @@ int GLOBAL_TEST=FALSE;
 const char *savedata_filename = "savedata.tox";
 const char *savedata_tmp_filename = "savedata.tox.tmp";
 
-uint32_t tp_server_send_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, TOX_ERR_FRIEND_SEND_MESSAGE *error)
+uint32_t tp_server_send_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, glong length, TOX_ERR_FRIEND_SEND_MESSAGE *error)
 {
 	uint32_t res;
-	gchar *debugmsg=g_strndup((gchar*)message,length);
+	gchar *debugmsg;
+	
+	if(length<0)
+	{
+		debugmsg=g_strdup((gchar*)message);
+	}
+	else
+	{
+		debugmsg=g_strndup((gchar*)message,length);
+	}
 
 	if(!GLOBAL_TEST)
 	{
@@ -50,9 +59,17 @@ uint32_t tp_server_send_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TY
 	return res;
 }
 
-uint32_t tp_server_send_message_str(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const gchar *message, TOX_ERR_FRIEND_SEND_MESSAGE *error)
+uint32_t tp_server_send_message_str(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, TOX_ERR_FRIEND_SEND_MESSAGE *error, const gchar *message,...)
 {
-	return tp_server_send_message(tox,friend_number,type,(uint8_t*)message,strlen(message),error);
+	va_list args;
+	g_autofree char *send_str=NULL;
+
+	va_start(args,message);
+	vasprintf(&send_str, message, args);
+
+	uint32_t retval=tp_server_send_message(tox,friend_number,type,(uint8_t*)message,strlen(message),error);
+	
+	return retval;
 }
 
 uint32_t tp_server_room_send_message(Tox *tox, TPGameRoom *room, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, TOX_ERR_FRIEND_SEND_MESSAGE *error)
@@ -72,9 +89,17 @@ uint32_t tp_server_room_send_message(Tox *tox, TPGameRoom *room, TOX_MESSAGE_TYP
 	return result;
 }
 
-uint32_t tp_server_room_send_message_str(Tox *tox, TPGameRoom *room, TOX_MESSAGE_TYPE type, const gchar *message, TOX_ERR_FRIEND_SEND_MESSAGE *error)
+uint32_t tp_server_room_send_message_str(Tox *tox, TPGameRoom *room, TOX_MESSAGE_TYPE type, TOX_ERR_FRIEND_SEND_MESSAGE *error, const gchar *message,...)
 {
-	return tp_server_room_send_message(tox,room,type,(uint8_t*)message,strlen(message),error);
+	va_list args;
+	g_autofree char *send_str=NULL;
+
+	va_start(args,message);
+	vasprintf(&send_str, message, args);
+
+	uint32_t retval=tp_server_room_send_message(tox,room,type,(uint8_t*)send_str,-1,error);
+	 
+	return retval;
 }
 
 Tox *create_tox()
@@ -172,7 +197,7 @@ void friend_request_cb(Tox *tox, const uint8_t *public_key, const uint8_t *messa
 	
 	update_savedata_file(tox);
 	
-	tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL , "Hello and welcome to Toxplash (TM)!", NULL);
+	tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, NULL, "Hello and welcome to Toxplash (TM)!");
 }
  
 //random integer from 0 to n-1
@@ -224,7 +249,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 		
 			g_autofree gchar *output_str=g_strdup_printf("Added you to room %s",time_str);
 		
-			tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, output_str, NULL);
+			tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, NULL, output_str);
 		}
 		else if(strcmp(handleable_str,"help")==0)
 		{
@@ -233,7 +258,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 			"create           -- Create a new room\n"
 			"help             -- Display this text\n";
 		
-			tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, helpstr, NULL);
+			tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, NULL, helpstr);
 		}
 		else
 		{
@@ -245,7 +270,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 			}
 			else
 			{
-				tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, "Sorry sir, that is not a valid room name. You may create a room by typing \"create\"!", NULL);
+				tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, NULL, "Sorry sir, that is not a valid room name. You may create a room by typing \"create\"!");
 			}
 		}
 	}
@@ -274,7 +299,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 				
 				//assert(result_code);
 			
-				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,"Starting the game!", NULL);
+				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,"Starting the game!");
 			}
 			else if(strcmp(handleable_str,"help")==0)
 			{
@@ -285,7 +310,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 				"exit             -- Quit toxsplash\n"
 				"help             -- Display this text\n";
 			
-				tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, helpstr, NULL);
+				tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, NULL, helpstr);
 			}
 			else if(strcmp(handleable_str,"avalon")==0)
 			{
@@ -303,7 +328,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 				
 				size_t num_cards=sizeof(cards)/sizeof(cards[0]);
 				
-				char **random_card_deck=malloc(num_cards*sizeof(char*));
+				g_autofree char **random_card_deck=malloc(num_cards*sizeof(char*));
 				
 				for(size_t i=0;i<num_cards;i++)
 				{
@@ -319,7 +344,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 				
 				printf("\n");
 				
-				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,"Starting the game!", NULL);
+				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,"Starting the game!");
 				
 				TPPlayer *players=(TPPlayer*)room->players->data;
 				for(gint i=0;i<room->players->len;i++)
@@ -333,11 +358,77 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 					tp_server_send_message(tox,itr_player,TOX_MESSAGE_TYPE_NORMAL,output->str,output->len,NULL);
 				}
 			}
+			else if(g_str_has_prefix(handleable_str,"rand"))
+			{
+				g_autoptr(GStrArr) functvars=g_strsplit(handleable_str," ",-1);
+				size_t num_args=g_strv_length(functvars);
+				
+				if(num_args<3)
+				{
+					tp_server_send_message(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, "rand requires more arguments",-1, NULL);
+					break;
+				}
+				GStrArr *cards=&functvars[1];
+				
+				size_t num_cards=num_args-1;
+				
+				g_autofree char **random_card_deck=malloc(num_cards*sizeof(char*));
+				
+				for(size_t i=0;i<num_cards;i++)
+				{
+					random_card_deck[i]=g_strdup(cards[i]);
+				}
+				
+				shuffle(random_card_deck,num_cards);
+				
+				for(size_t i=0;i<num_cards;i++)
+				{
+					printf(" %s ",random_card_deck[i]);
+				}
+				
+				printf("\n");
+				
+				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,random_card_deck[0]);
+			}
+			else if(g_str_has_prefix(handleable_str,"shuffle"))
+			{
+				g_autoptr(GStrArr) functvars=g_strsplit(handleable_str," ",-1);
+				size_t num_args=g_strv_length(functvars);
+				
+				if(num_args<3)
+				{
+					tp_server_send_message(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, "shuffle requires more arguments!",-1, NULL);
+					break;
+				}
+				GStrArr *cards=&functvars[1];
+				
+				size_t num_cards=num_args-1;
+				
+				g_autofree char **random_card_deck=malloc(num_cards*sizeof(char*));
+				
+				for(size_t i=0;i<num_cards;i++)
+				{
+					random_card_deck[i]=g_strdup(cards[i]);
+				}
+				
+				shuffle(random_card_deck,num_cards);
+				
+				g_autoptr(GString) output=g_string_sized_new(100);
+				
+				g_string_append(output,">");
+				
+				for(gint i=0;i<num_cards;i++)
+				{
+					g_string_append_printf(output," %s",random_card_deck[i]);
+				}
+				
+				tp_server_room_send_message(tox,room,TOX_MESSAGE_TYPE_NORMAL,output->str,output->len,NULL);
+			}
 			else if(strcmp(handleable_str,"list")==0)
 			{
 				g_autofree gchar *user_list=g_string_free(tp_game_room_dump_players(room),FALSE);
 		
-				tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, user_list, NULL);
+				tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, NULL, user_list);
 			}
 			else if(strcmp(handleable_str,"exit")==0)
 			{
@@ -346,7 +437,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 			}
 			else
 			{
-				tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, "If you send me \"start\" I will start a game for you!", NULL);
+				tp_server_send_message_str(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, NULL, "If you send me \"start\" I will start a game for you!");
 			}
 			break;
 			case TP_GAME_ROOM_STATE_PLAYING:
@@ -427,7 +518,7 @@ int do_test()
 
 	while(1)
 	{
-		scanf("%ms",&input);
+		scanf("%m[^\n]%*c",&input);
 		
 		printf("GOT IN: %s\n",input);
 		

@@ -243,7 +243,7 @@ void *tp_game_play(void* argument)
 		
 		gchar *str=g_strdup_printf("==%s==",tp_qa_get_question((((TPQa*)players[ii].qa->data)[0]).question));
 	
-		tp_server_send_message_str(tox,curr_player_id,TOX_MESSAGE_TYPE_NORMAL,str,NULL);
+		tp_server_send_message_str(tox,curr_player_id,TOX_MESSAGE_TYPE_NORMAL,NULL,str);
 	
 		g_free(str);
 	}
@@ -269,13 +269,13 @@ void *tp_game_play(void* argument)
 				{
 					gchar *str=g_strdup_printf("== %d ==",elapsed);
 		
-					tp_server_send_message_str(tox,curr_player_id,TOX_MESSAGE_TYPE_NORMAL,str,NULL);
+					tp_server_send_message_str(tox,curr_player_id,TOX_MESSAGE_TYPE_NORMAL,NULL,str);
 					
 					g_free(str);
 					
 					str=g_strdup_printf("== %s %d ==",tp_qa_get_question(qa[curr_player->curr_qa].question),players[ii].qa->len);
 					
-					tp_server_send_message_str(tox,curr_player_id,TOX_MESSAGE_TYPE_NORMAL,str,NULL);
+					tp_server_send_message_str(tox,curr_player_id,TOX_MESSAGE_TYPE_NORMAL,NULL,str);
 	
 					g_free(str);
 				}
@@ -283,7 +283,7 @@ void *tp_game_play(void* argument)
 				{
 					gchar *str=g_strdup_printf("== Waiting for other players. %d sec left ... ==",elapsed);
 	
-					tp_server_send_message_str(tox,curr_player_id,TOX_MESSAGE_TYPE_NORMAL,str,NULL);
+					tp_server_send_message_str(tox,curr_player_id,TOX_MESSAGE_TYPE_NORMAL,NULL,str);
 	
 					g_free(str);
 				}
@@ -294,7 +294,7 @@ void *tp_game_play(void* argument)
 		
 		g_usleep(1000000);
 		
-		tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,"Voting phase, get ready to vote!",NULL);
+		tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,NULL,"Voting phase, get ready to vote!");
 		
 		g_usleep(1000000);
 		
@@ -310,13 +310,13 @@ void *tp_game_play(void* argument)
 			{
 				gchar *str=g_strdup_printf("== %d ==",elapsed);
 	
-				tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,str,NULL);
+				tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,NULL,str);
 		
 				g_free(str);
 		
 				str=g_strdup_printf("== %s ==",tp_qa_get_question(vote_qa[0].question));
 		
-				tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,str,NULL);
+				tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,NULL,str);
 		
 				g_free(str);
 			
@@ -331,7 +331,7 @@ void *tp_game_play(void* argument)
 					
 					str=g_strdup_printf("%c) %s",'A'+ii,qa[question].answer);
 					
-					tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,str,NULL);
+					tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,NULL,str);
 					
 					g_free(str);
 				}	
@@ -341,7 +341,7 @@ void *tp_game_play(void* argument)
 		}
 	}
 	
-	tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,"Times up!",NULL);
+	tp_server_room_send_message_str(tox,self,TOX_MESSAGE_TYPE_NORMAL,NULL,"Times up!");
 	
 	return NULL;
 }
@@ -366,13 +366,13 @@ void tp_game_answer(TPGameRoom *self, Tox *tox, uint32_t friend_number, const ui
 				
 				if(player->curr_qa==2)
 				{
-					tp_server_send_message_str(tox,friend_number,TOX_MESSAGE_TYPE_NORMAL,"Thank you for your answers!",NULL);
+					tp_server_send_message_str(tox,friend_number,TOX_MESSAGE_TYPE_NORMAL,NULL,"Thank you for your answers!");
 				}
 			}
 		}
 		else
 		{
-			tp_server_send_message_str(tox,friend_number,TOX_MESSAGE_TYPE_NORMAL,"Waiting for other players ...",NULL);
+			tp_server_send_message_str(tox,friend_number,TOX_MESSAGE_TYPE_NORMAL,NULL,"Waiting for other players ...");
 		}
 	}
 }
