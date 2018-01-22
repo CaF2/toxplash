@@ -323,6 +323,8 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 			{
 				const char *helpstr="List of available commands:\n"
 				"start            -- Start the toxsplash game\n"
+				"rand t1 t2 t3 tN -- Send one of the text strings to all in the room\n"
+				"shuffle t1 t2 tN -- Put the selected items in a randomized order\n"
 				"avalon           -- Shuffle the avalon cards (play it instead)\n"
 				"list             -- List users\n"
 				"exit             -- Quit toxsplash\n"
