@@ -53,12 +53,10 @@ uint32_t tp_server_send_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TY
 	
 	if(length<0)
 	{
-		debugmsg=g_strdup((gchar*)message);
+		length=strlen(message);
 	}
-	else
-	{
-		debugmsg=g_strndup((gchar*)message,length);
-	}
+
+	debugmsg=g_strndup((gchar*)message,length);
 
 	if(!GLOBAL_TEST)
 	{
@@ -324,6 +322,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 				const char *helpstr="List of available commands:\n"
 				"start            -- Start the toxsplash game\n"
 				"rand t1 t2 t3 tN -- Send one of the text strings to all in the room\n"
+				"rrand min max    -- Generate a random number between range\n"
 				"shuffle t1 t2 tN -- Put the selected items in a randomized order\n"
 				"avalon           -- Shuffle the avalon cards (play it instead)\n"
 				"list             -- List users\n"
@@ -408,7 +407,34 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 				
 				printf("\n");
 				
-				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,random_card_deck[0]);
+				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,"> %s",handleable_str);
+				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,"> %s",random_card_deck[0]);
+			}
+			else if(g_str_has_prefix(handleable_str,"rrand"))
+			{
+				g_autoptr(GStrArr) functvars=g_strsplit(handleable_str," ",-1);
+				size_t num_args=g_strv_length(functvars);
+				
+				if(num_args!=3)
+				{
+					tp_server_send_message(tox, friend_number, TOX_MESSAGE_TYPE_NORMAL, "format is \"rrand min max\"",-1, NULL);
+					break;
+				}
+				
+				int min=atoi(functvars[1]);
+				int max=atoi(functvars[2]);
+				
+				if(min>max)
+				{
+					int tmp=min;
+					min=max;
+					max=tmp;
+				}
+				
+				int range=max-min+1;
+				
+				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,"> %s",handleable_str);
+				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,"> %d",min+irand(range));
 			}
 			else if(g_str_has_prefix(handleable_str,"shuffle"))
 			{
@@ -442,6 +468,7 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 					g_string_append_printf(output," %s",random_card_deck[i]);
 				}
 				
+				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,"> %s",handleable_str);
 				tp_server_room_send_message(tox,room,TOX_MESSAGE_TYPE_NORMAL,output->str,output->len,NULL);
 			}
 			else if(strcmp(handleable_str,"list")==0)
@@ -542,7 +569,8 @@ int do_test()
 		
 		printf("GOT IN: %s\n",input);
 		
-		friend_message_cb(NULL,1,TOX_MESSAGE_TYPE_NORMAL,(uint8_t*)input,strlen(input),NULL);
+		if(input)
+			friend_message_cb(NULL,1,TOX_MESSAGE_TYPE_NORMAL,(uint8_t*)input,strlen(input),NULL);
 		
 		free(input);
 	}
