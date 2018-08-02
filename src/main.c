@@ -217,7 +217,7 @@ void friend_request_cb(Tox *tox, const uint8_t *public_key, const uint8_t *messa
 }
  
 //random integer from 0 to n-1
-int irand(int n)
+static int irand(int n)
 {
 	int r, rand_max = RAND_MAX - (RAND_MAX % n);
 	/* reroll until r falls in a range that can be evenly
@@ -226,6 +226,7 @@ int irand(int n)
 	while ((r = rand()) >= rand_max);
 	return r / (rand_max / n);
 }
+
 void shuffle(char **list, size_t len)
 {
 	int j;
@@ -295,27 +296,9 @@ void friend_message_cb(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, 
 		switch(room->state)
 		{
 			case TP_GAME_ROOM_STATE_WAIT_PLAYERS:
-			if(0 && strcmp(handleable_str,"start")==0)
+			if(strcmp(handleable_str,"start")==0)
 			{
-				if(!tp_generate_questions(room,4))
-				{
-					printf("ERROR: Something went wrong with generating the questions!\n");
-				}
-				
-				room->state=TP_GAME_ROOM_STATE_PLAYING;
-				
-				pthread_t game;
-				
-				void **input=malloc(2*sizeof(void*));
-				
-				input[0]=room;
-				input[1]=tox;
-			
-				int result_code=pthread_create(&game, NULL, tp_game_play, input);
-				
-				//assert(result_code);
-			
-				tp_server_room_send_message_str(tox, room, TOX_MESSAGE_TYPE_NORMAL,NULL,"Starting the game!");
+				tp_game_play(tox,room);
 			}
 			else if(strcmp(handleable_str,"help")==0)
 			{
@@ -580,6 +563,38 @@ int do_test()
 
 int main(int argv, char **argc)
 {
+/*	srand(time(NULL));*/
+
+/*	GArray *arr=g_array_sized_new(FALSE,FALSE,sizeof(int),10);*/
+
+/*	for(int i=0;i<10;i++)*/
+/*	{*/
+/*		g_array_append_val(arr,i);*/
+/*	}*/
+/*	*/
+/*	for(int i=0;i<arr->len;i++)*/
+/*	{*/
+/*		int val=g_array_index(arr,int,i);*/
+/*		*/
+/*		printf("%d,",val);*/
+/*	}*/
+/*	*/
+/*	printf("\n");*/
+/*	*/
+/*	GArray *sarr=shuffle_array(arr);*/
+/*	*/
+/*	for(int i=0;i<sarr->len;i++)*/
+/*	{*/
+/*		int val=g_array_index(sarr,int,i);*/
+/*		*/
+/*		printf("%d,",val);*/
+/*	}*/
+/*	*/
+/*	printf("\n");*/
+/*	*/
+/*	return 0;*/
+	//////////////////
+	
 	int test=0;
 
 	srand(time(NULL));

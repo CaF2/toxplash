@@ -18,7 +18,7 @@
 #
 ###########################################
 
-NAME := toxplash
+NAME := server
 
 VERSION := 0.1
 
@@ -28,12 +28,12 @@ CC := gcc
 MEMTEST := valgrind
 DEBUG := gdb
 
-SRCS := $(wildcard ./src/*.c)
+SRCS := $(wildcard ./*.c)
 
 BUILD_DIR := .build
 INC_DIR := inc
 
-PKG_CONF_LIBS := libsodium toxcore glib-2.0
+PKG_CONF_LIBS := libwebsockets glib-2.0
 
 CFLAGS := -g
 CFLAGS += $(shell pkg-config --cflags $(PKG_CONF_LIBS))
@@ -46,7 +46,6 @@ INCLUDE_TEST := ./test
 INCLUDE_TEST_BIN := $(INCLUDE_TEST)/gmrtest
 
 OBJS := $(addprefix $(BUILD_DIR)/,$(notdir $(SRCS:.c=.o)))
-HEADERS := $(addprefix $(INC_DIR)/gen/,$(notdir $(SRCS:.c=.h)))
 
 DEPS := $(OBJS:.o=.d)
 
@@ -60,24 +59,17 @@ $(OUTPUT): $(OBJS)
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/%.o: src/%.c $(HEADERS) | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -MT $@ -MMD -MF $(BUILD_DIR)/$*.d -c $< -o $@
 
 inc/gen:
 	mkdir -p $@
 
-.PRECIOUS: inc/gen/%.h
-inc/gen/%.h: src/%.c | inc/gen
-	@$(shell OUT=$$(makeheaders -h $<) $(if $(wildcard $@),; if ! [ "$$OUT" == "$$(cat $@)" ]; then echo "$$OUT" > $@;echo "echo 'generating $@...'"; fi,> $@;echo "echo 'generating $@...'";))
-
-%:
-	@:
-
 clean:
-	rm -f $(OBJS) $(OUTPUT) $(HEADERS)
+	rm -f $(OBJS) $(OUTPUT)
 
-run: all
-	./$(OUTPUT) test
+run: $(OUTPUT)
+	./$< test
 	
 $(MEMTEST): all
 	$(MEMTEST) --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./$(NAME) test

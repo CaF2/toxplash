@@ -32,9 +32,27 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 typedef struct TPQa
 {
-	gint question;
-	gchar *answer;
-	gdouble points;
+	TPPlayer *parent;
+	int question_type;
+	union
+	{
+		intptr_t question; ///<to the list of questions
+		void *question_str; ///< individual question?
+	};
+	char *answer;
+	int votes;
 }TPQa;
+
+///TODO
+typedef struct TPVote
+{
+	int question_type;
+	union
+	{
+		intptr_t question; ///<to the list of questions
+		void *question_str; ///< individual question?
+	};
+	GPtrArray *players;
+}TPVote;
 
 #include "gen/tp_questions.h"

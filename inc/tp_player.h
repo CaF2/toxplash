@@ -30,11 +30,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 typedef struct TPPlayer
 {
-	guint32 player_id;
+	uint32_t player_id;
 	//gchar *player_name;
 	GArray *qa; ///< GStrings
-	gint curr_qa;
-	gint points;
+	int curr_qa;
+	double points;
+	
+	uint8_t voted; ///<if the player voted this round
 }TPPlayer;
+
+#include "tp_questions.h"
 
 #include "gen/tp_player.h"

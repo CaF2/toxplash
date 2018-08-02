@@ -1,0 +1,31 @@
+body
+{
+	text-align: center;
+}
+
+#thetable
+{
+	width:80%;
+	border:1px solid #000000;
+	padding:10px;
+	margin-left:10%;
+	margin-top:20px;
+}
+
+#thetable tr
+{
+	width:100%;
+/*	border:1px solid #ff0000;*/
+}
+
+#thetable tr td:nth-child(2n+1)
+{
+	width:45%;
+/*	border:1px solid #ff00ff;*/
+}
+
+#thetable tr td:nth-child(2n)
+{
+	width:10%;
+/*	border:1px solid #ff00ff;*/
+}

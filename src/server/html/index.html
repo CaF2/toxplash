@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Login</title>
+	<link rel="stylesheet" href="style.css">
+	<script>
+		function showtable(val)
+		{
+			if(val.value.length>0)
+			{
+				document.getElementById("thetable").style.display = "table";
+			}
+			else
+			{
+				document.getElementById("thetable").style.display = "none";
+			}
+		}
+	</script>
+</head>
+<body>
+	<h1>Login to Toxsplash!</h1>
+	<p>Enter your username:</p>
+	<input type="text" oninput="showtable(this)">
+	<table id="thetable" style="display:none;">
+	<tr>
+		<td>
+			<p>Enter the roomname</p>
+			<form>
+			<form>
+				<input type="text">
+				<input type="submit" onClick="location.href='/room.html';" value="Join room!">
+			</form>
+			</form>
+		</td>
+		<td class="thetableor">
+			<p>OR</p>
+		</td>
+		<td>
+			<p>Create a new room</p>
+			<form>
+				<input type="button" onClick="location.href='/room.html';" value="Create room!">
+			</form>
+		</td>
+	</tr>
+	</table>
+</body>
+</html>

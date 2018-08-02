@@ -31,8 +31,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <sodium/utils.h>
 #include <tox/tox.h>
 
-#include "tp_player.h"
-
 typedef enum TPGameRoomStates
 {
 	TP_GAME_ROOM_STATE_NONE,
@@ -47,9 +45,16 @@ typedef struct TPGameRoom
 	gchar *room_name;
 	TPGameRoomStates state;
 	gint round;
+	gint num_questions;
+	gint std_rounds;
+	
+	uint8_t is_voting;
+	
 	GArray *players; ///< TPPlayer
-	GArray *taken_questions;
+	GArray *votes; ///<TPVote
 }TPGameRoom;
+
+#include "tp_player.h"
 
 #include "gen/tp_game.h"
 #include "tp_questions.h"

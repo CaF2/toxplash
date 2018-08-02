@@ -3,3 +3,5 @@ toxplash
 /inc/gen/
 *.tox
 *.o
+src/server/.build/
+src/server/server

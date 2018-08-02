@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "tp_player.h"
-#include "tp_questions.h"
 
 TPPlayer *tp_player_init(TPPlayer *self, guint32 player_id)
 {
@@ -29,4 +28,30 @@ TPPlayer *tp_player_init(TPPlayer *self, guint32 player_id)
 	printf("pointer made %p\n",self->qa);
 
 	return self;
+}
+
+TPQa *tp_player_get_question_from_id(TPPlayer *self, intptr_t question, int *index)
+{
+	GArray *qa=self->qa;
+	
+	if(index)
+	{
+		*index=-1;
+	}
+	
+	for(int i=0;i<qa->len;i++)
+	{
+		TPQa *cur_qa=&g_array_index(qa,TPQa,i);
+		
+		if(cur_qa->question==question)
+		{
+			if(index)
+			{
+				*index=i;
+			}
+			return cur_qa;
+		}
+	}
+	
+	return NULL;
 }
